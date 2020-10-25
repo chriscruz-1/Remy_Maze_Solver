@@ -9,6 +9,8 @@ td, th {
 }
 
 table {
+    display: flex;
+    justify-content: center;
     border-spacing: 0;
     border-collapse: collapse;
 }

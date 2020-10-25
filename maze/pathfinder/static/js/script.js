@@ -1,9 +1,28 @@
+let mouse_down = false
+
+function toggle_grid(target) {
+    if (target.className === 'wall') {
+        target.className = 'unvisited';
+    } else {
+        target.className = 'wall';
+    }
+}
+
 window.addEventListener("DOMContentLoaded", function() {
-    console.log("loaded");
     document.querySelectorAll('td').forEach(button => {
-        // console.log('hello');
-        button.onclick = () => {
-            console.log('Clicked');
+        button.onmousedown = (e_down) => {
+            mouse_down = true;
+            toggle_grid(e_down.target);
         };
+
+        button.onmouseup = (e_up) => {
+            mouse_down = false;
+        };
+
+        button.onmouseenter = (e_move) => {
+            if (mouse_down) {
+                toggle_grid(e_move.target);
+            }
+        }
     });
 });

@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Grid:
-    def __init__(self, r, c):
+    def __init__(self, r, c, is_start = False, is_end = False):
         """
         :param r: The row index of current grid.
         :param c: The column index of current grid.
@@ -11,6 +11,8 @@ class Grid:
         self.is_visited = False
         self.r = r
         self.c = c
+        self.is_start = is_start
+        self.is_end = is_end
 
 class Row:
     def __init__(self, row_idx, grid_num):
@@ -25,11 +27,22 @@ class Row:
         self.grids = [ Grid(row_idx, i) for i in range(grid_num) ]
 
 class Map:
-    def __init__(self, height, width):
+    def __init__(self, height, width, start = None, end = None):
         assert height > 0 and width > 0
+
         self.height = height
         self.width = width
+
+        if start == None:
+            self.start = (0, 0)
+
+        if end == None:
+            self.end = (height - 1, width - 1)
+
         self.rows = [ Row(i, width) for i in range(height) ]
+        self.rows[self.start[0]].grids[self.start[1]].is_start = True
+        self.rows[self.end[0]].grids[self.end[1]].is_end = True
+
 
     def display(self):
         '''
@@ -56,6 +69,12 @@ class Map:
 
     def shape(self):
         return self.height, self.width
+
+    def get_start(self):
+        return self.start
+
+    def get_end(self):
+        return self.end
 
 
 # Test

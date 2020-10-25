@@ -5,8 +5,8 @@ from .models import Map
 
 # Create your views here.
 def index(request):
-    map = Map(4, 3)
-    map.toggle_wall(1, 1)
+    map = Map(20, 20)
+
     return render(request, 'pathfinder/index.html', {
         'map': map
     })
