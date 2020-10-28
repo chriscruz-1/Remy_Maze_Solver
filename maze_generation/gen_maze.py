@@ -92,7 +92,7 @@ def validate_point(index,maze, max_cluster_size = None):
 	
 	return True
 
-def print_maze(maze,pretty=False,wall_char='█',empty_char=' ',edge_char='░'):
+def print_maze(maze,pretty=False,wall_char='██',empty_char='  ',edge_char='░'):
 	if pretty:
 		# Print maze top boundary
 		print(edge_char * (2* len(maze) + 2))
@@ -102,9 +102,9 @@ def print_maze(maze,pretty=False,wall_char='█',empty_char=' ',edge_char='░')
 			for i in range(len(maze)):
 				# Print maze contents row by row
 				if maze[i][j] == 1:
-					print(wall_char + ' ', end = '')
+					print(wall_char + '', end = '')
 				else:
-					print(empty_char + ' ', end = '')
+					print(empty_char + '', end = '')
 			# Print maze right boundary
 			print(edge_char)
 		# Print maze bottom boundary
