@@ -2,8 +2,6 @@ import gen_maze
 import os
 from time import perf_counter 
 
-
-
 num = int(input("How many mazes do you want? (might be less due to hash collisions)"))
 dim = int(input("What dimension?"))
 flags = input("Any flags? (y/n)")
@@ -28,7 +26,7 @@ base_path = "./Maze Output/"
 
 # Attempt to generate num mazes 
 for i in range(num):
-	# Generate maze of dimenxion dim * dim and build
+	# Generate maze of dimension dim * dim and build
 	maze = gen_maze.maze_class(dim = dim, max_cluster_size = max_cluster_size)
 	maze.build_maze()
 
@@ -56,4 +54,3 @@ for i in range(num):
 
 end = perf_counter()  
 print("Generated", len(maze_hashes), "mazes in", end - start, "sec")
-#print(maze_hashes)
