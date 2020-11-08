@@ -99,23 +99,34 @@ class MazeMap:
             else:
                 return (-0.5, Mode.VALID)
 
-    def observe(self):
-        pass
+    # Get the current map and location of agent
+    def observe(self, mark_visited=False):
+        curr_row, curr_col = self.curr_loc
+        canvas = np.copy(self.maze)
+
+        # Use number 2 to mark visited cell
+        if mark_visited:
+            for pos in self.visited:
+                canvas[pos[0], pos[1]] = 2
+        
+        # Use -1 to mark position of agent
+        canvas[curr_row, curr_col] = -1
+        return canvas
 
     def act(self, action: Action):
         reward, mode = self.cal_reward(action)
 
         self.tol_reward += reward
 
-        if mode == Mode.END:
-            return self.observe(), reward, mode
-
-        if self.tol_reward <= self.reward_lower_bound:
-            mode = Mode.TERMINATED
-            return self.observe(), reward, mode
-
         if mode != Mode.INVALID:
             self.curr_loc = self._apply_action(action)
+            self.visited.add(self.curr_loc)
+
+            if mode == Mode.END:
+                return self.observe(), reward, mode
+
+            if self.tol_reward <= self.reward_lower_bound:
+                mode = Mode.TERMINATED
 
         return self.observe(), reward, mode
             
