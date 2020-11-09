@@ -1,8 +1,5 @@
+from utils import build_model
 from replay import Episode, ReplyBuffer
-from keras.models import Sequential
-from keras.layers.core import Dense
-# from keras.optimizers import SGD , Adam, RMSprop
-from keras.layers.advanced_activations import PReLU
 import numpy as np
 from mazemap import Action, MazeMap, Mode
 import json
@@ -17,19 +14,6 @@ maze_test = np.array([
     [ 0., 0., 0., 1., 0., 0., 0., 1. ],
     [ 0., 0., 0., 1., 0., 0., 0., 0. ],
 ])
-
-# This model structure is identical to this article
-# https://www.samyzaf.com/ML/rl/qmaze.html
-# TODO: Our next goal is to test out whether there is other suitable model structure
-def build_model(maze, lr=0.001):
-    model = Sequential()
-    model.add(Dense(maze.size, input_shape=(maze.size,)))
-    model.add(PReLU())
-    model.add(Dense(maze.size))
-    model.add(PReLU())
-    model.add(Dense(len(Action)))
-    model.compile(optimizer='adam', loss='mse')
-    return model
 
 def start_train(model,
                 maze: MazeMap, 
@@ -48,13 +32,13 @@ def start_train(model,
         print(f'Load weight from {load_path}')
         model.load_weights(load_path)
 
-    maze_map = MazeMap(maze)
+    maze_map = maze
 
     replay_buf: ReplyBuffer = ReplyBuffer(model, maze_map.get_state_size(), max_buffer, gamma)
 
     history = []
-    loss = 0
-    hsize = maze.get_state_size // 2
+    loss = 0.0
+    hsize = maze.get_state_size() // 2
 
     # Run training epoch
     for epoch in range(num_epoch):
@@ -95,9 +79,9 @@ def start_train(model,
 
             inputs, outputs = replay_buf.sampling(sample_size)
             train_history = model.fit(inputs, outputs, epochs=8, batch_size=16, verbose=0)
-            loss = train_history.history['loss']
+            loss = train_history.history['loss'][-1]
         
-        win_rate = 0.0 if len(history) < hsize else np.sum(np.array(history[-hsize:])) / len(hsize)
+        win_rate = 0.0 if len(history) < hsize else np.sum(np.array(history[-hsize:])) / hsize
 
         print(f'Epoch {epoch}/{num_epoch} | Loss: {loss:.2f} | Episodes: {num_episode} | Win Count: {np.sum(np.array(history))} | Win Rate: {win_rate}')
 
@@ -108,13 +92,22 @@ def start_train(model,
             print('Reach 100% win rate')
             break
 
-        if epoch % 10 == 0:
-            with open(save_path + '.json', "w") as outfile:
+        if epoch % 15 == 0:
+            h5file = save_path + ".h5"
+            model.save_weights(h5file, overwrite=True)
+
+            json_file = save_path + '.json'
+            with open(json_file, "w") as outfile:
                 json.dump(model.to_json(), outfile)
+            print(f'Saved model in {save_path}')
 
 
-    with open(save_path + '.json', "w") as outfile:
+    h5file = save_path + ".h5"
+    model.save_weights(h5file, overwrite=True)        
+    json_file = save_path + '.json'
+    with open(json_file, "w") as outfile:
         json.dump(model.to_json(), outfile)
+    print(f'Saved model in {save_path}')
 
 
 

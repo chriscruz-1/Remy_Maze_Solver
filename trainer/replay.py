@@ -4,6 +4,8 @@ import numpy as np
 from numpy import random
 
 # Basic encap for a episode, which stands for a snapshot of a game state
+
+
 class Episode:
     def __init__(self, curr_state, next_state, action, reward, mode):
         self._curr_state = curr_state
@@ -30,18 +32,20 @@ class Episode:
 # The official name for this is "Experience Buffer"
 # Experience buffer is another concept beyond the vanilla implementation of reinforce learning,
 # which means it's not required for a basic reinforce learning.
-# 
-# Experience buffer can help our model to learn better 
+#
+# Experience buffer can help our model to learn better
 # by randomly sampling input and target from previous training episode
+
+
 class ReplyBuffer:
-    def __init__(self, model, state_size, max_buffer = 1000, gamma=0.9):
+    def __init__(self, model, state_size, max_buffer=1000, gamma=0.9):
         # Set up basic parameter for a experience buffer
         self.model = model
         self.max_buffer = max_buffer
         self.gamma = gamma
         self.state_size = state_size
 
-        self.buffer = [Episode]
+        self.buffer = []
         self.num_actions = len(Action)
 
     # Log the new episode into a list
@@ -75,12 +79,13 @@ class ReplyBuffer:
             # Q(s, a) = r + gamma * max Q(s', a')
             # r stands for immediate reward at that state
             # gamma is discount rate
-           
+
             # This is for Q(s', a')
-            Q_sa_prev = np.max(self.predict(episode.get_next_state))
-            if episode.get_mode == Mode.END:
-                outputs[index, episode.get_action()] = episode.get_reward
+            Q_sa_prev = np.max(self.predict(episode.get_next_state()))
+            action_idx = int(episode.get_action())
+            if episode.get_mode() == Mode.END:
+                outputs[idx, action_idx] = episode.get_reward()
             else:
-                outputs[index, episode.get_action()] = episode.get_reward() + self.gamma * Q_sa_prev
+                outputs[idx, action_idx] = episode.get_reward() + self.gamma * Q_sa_prev
 
         return inputs, outputs

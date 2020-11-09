@@ -1,10 +1,10 @@
 # This is not a correct or well-format unit test
 # Just some simple testings.
-
-from mazemap import MazeMap
+from keras.engine.training import Model
+from mazemap import MazeMap, Mode
 from mazemap import Action
 import numpy as np
-from utils import show_map, update_map
+from utils import show_map, update_map, build_model
 import matplotlib.pyplot as plt
 
 maze_test = np.array([
@@ -46,4 +46,34 @@ def test_map_draw():
 
     plt.show()
 
+def play():
+    model = build_model(maze_test)
+    model.load_weights('maze_model.h5')
+
+    maze_map = MazeMap(maze_test)
+    maze_img = show_map(maze_map)
+
+    game_over = False
+    state = maze_map.observe()
+
+    while not game_over:
+        plt.pause(0.5)
+        valid_actions = maze_map.get_valid_actions()
+
+        if not valid_actions: break
+        action = np.argmax(model.predict(state))
+        state, reward, mode = maze_map.act(action)
+        update_map(maze_img, maze_map)
+
+        if mode == Mode.TERMINATED:
+            print('Terminated')
+        elif mode == Mode.END:
+            print('Reach the End')
+        elif mode == Mode.INVALID:
+            print(action)
+            print('Invalid Move')
+
+    plt.show()
+
+play()
 # test_map_draw()

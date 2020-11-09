@@ -8,12 +8,18 @@ class Mode(Enum):
     END = 4
     TERMINATED = 5
 
+    def __int__(self):
+        return self.value
+
 class Action(Enum):
     LEFT = 0
     UP = 1
     RIGHT = 2
     DOWN = 3
     # JUMP = 4
+
+    def __int__(self):
+        return self.value
 
 class MazeMap:
     def __init__(self, map, start=(0, 0), end=None):

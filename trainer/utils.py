@@ -1,7 +1,11 @@
 from matplotlib.image import AxesImage
 import matplotlib.pyplot as plt
 import numpy as np
-from mazemap import MazeMap
+from mazemap import Action, MazeMap
+from keras.models import Sequential
+from keras.layers.core import Dense
+# from keras.optimizers import SGD , Adam, RMSprop
+from keras.layers.advanced_activations import PReLU
 
 # This function is used to visualize the game process by using matplot
 # Credits to https://www.samyzaf.com/ML/rl/qmaze.html
@@ -21,3 +25,16 @@ def show_map(maze_map: MazeMap):
 def update_map(img, maze_map):
     img.set_data(maze_map.get_map_for_draw(True))
     plt.draw()
+
+# This model structure is identical to this article
+# https://www.samyzaf.com/ML/rl/qmaze.html
+# TODO: Our next goal is to test out whether there is other suitable model structure
+def build_model(maze, lr=0.001):
+    model = Sequential()
+    model.add(Dense(maze.size, input_shape=(maze.size,)))
+    model.add(PReLU())
+    model.add(Dense(maze.size))
+    model.add(PReLU())
+    model.add(Dense(len(Action)))
+    model.compile(optimizer='adam', loss='mse')
+    return model
