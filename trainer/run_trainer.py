@@ -2,7 +2,7 @@ from utils import build_model
 from replay import Episode, ReplyBuffer
 import numpy as np
 from mazemap import Action, MazeMap, Mode
-import json
+import tensorflowjs as tfjs
 
 maze_test = np.array([
     [ 0., 1., 0., 0., 0., 0., 0., 0. ],
@@ -95,18 +95,15 @@ def start_train(model,
         if epoch % 15 == 0:
             h5file = save_path + ".h5"
             model.save_weights(h5file, overwrite=True)
-
+            tfjs.converters.save_keras_model(model, './')
             json_file = save_path + '.json'
-            with open(json_file, "w") as outfile:
-                json.dump(model.to_json(), outfile)
+            
             print(f'Saved model in {save_path}')
 
 
     h5file = save_path + ".h5"
     model.save_weights(h5file, overwrite=True)        
-    json_file = save_path + '.json'
-    with open(json_file, "w") as outfile:
-        json.dump(model.to_json(), outfile)
+    tfjs.converters.save_keras_model(model, './')
     print(f'Saved model in {save_path}')
 
 
