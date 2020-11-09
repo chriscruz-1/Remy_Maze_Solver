@@ -96,7 +96,6 @@ def start_train(model,
             h5file = save_path + ".h5"
             model.save_weights(h5file, overwrite=True)
             tfjs.converters.save_keras_model(model, './')
-            json_file = save_path + '.json'
             
             print(f'Saved model in {save_path}')
 
