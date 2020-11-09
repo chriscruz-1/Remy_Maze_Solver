@@ -38,6 +38,11 @@ class MazeMap:
 
         # Set up visited set.
         self.visited = set()
+        self.visited.add(self.start)
+
+    # A simple helper function to get the dimension of map
+    def dime(self):
+        return (self.height, self.width)
 
     # Determine whether there is a path based on 
     # the difference from current row and col
@@ -104,13 +109,37 @@ class MazeMap:
         curr_row, curr_col = self.curr_loc
         canvas = np.copy(self.maze)
 
-        # Use number 2 to mark visited cell
+        # Use number 0.6 to mark visited cell
         if mark_visited:
             for pos in self.visited:
-                canvas[pos[0], pos[1]] = 2
+                canvas[pos[0], pos[1]] = 0.6
         
-        # Use -1 to mark position of agent
-        canvas[curr_row, curr_col] = -1
+        # Use 0.3 to mark position of agent
+        canvas[curr_row, curr_col] = 0.3
+
+        # Use 0.9 to mark position of end
+        canvas[self.end[0], self.end[1]] = 0.9
+        return canvas.reshape(1, -1)
+    
+    # This function is basically identical to the observe.
+    # Only used for visualization game process.
+    def get_map_for_draw(self, mark_visited=True):
+        curr_row, curr_col = self.curr_loc
+        canvas = np.copy(self.maze)
+
+        reverse_v = np.vectorize(lambda x: 1.0 if x == 0 else 0.0)
+        canvas = reverse_v(canvas)
+
+        # Use number 0.6 to mark visited cell
+        if mark_visited:
+            for pos in self.visited:
+                canvas[pos[0], pos[1]] = 0.6
+        
+        # Use 0.3 to mark position of agent
+        canvas[curr_row, curr_col] = 0.3
+
+        # Use 0.9 to mark position of end
+        canvas[self.end[0], self.end[1]] = 0.9
         return canvas
 
     def act(self, action: Action):
