@@ -40,6 +40,9 @@ class MazeMap:
         self.visited = set()
         self.visited.add(self.start)
 
+    def get_state_size(self):
+        return len(self.state.flatten())
+
     # A simple helper function to get the dimension of map
     def dime(self):
         return (self.height, self.width)

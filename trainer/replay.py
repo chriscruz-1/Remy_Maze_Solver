@@ -34,7 +34,7 @@ class Episode:
 # Experience buffer can help our model to learn better 
 # by randomly sampling input and target from previous training episode
 class ReplyBuffer:
-    def __init__(self, model, state_size, max_buffer = 100, gamma=0.9):
+    def __init__(self, model, state_size, max_buffer = 1000, gamma=0.9):
         # Set up basic parameter for a experience buffer
         self.model = model
         self.max_buffer = max_buffer
