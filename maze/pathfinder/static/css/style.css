@@ -8,12 +8,30 @@ td, th {
     padding: 0;
 }
 
+h1 {
+  text-align: center;
+}
+
 table {
     display: flex;
     justify-content: center;
     border-spacing: 0;
     border-collapse: collapse;
 }
+
+.legend li { float: left; list-style: none;}
+.legend span { border: 1px solid #ccc; float: left; width: 20px; height: 20px; margin: 2px; }
+/* your colors */
+.legend .start-pt { background-color: rgb(0,100,0); font-size: 20px; }
+.legend .end-pt { background-color: rgb(190, 0, 254); }
+.legend .wall-lg { background-color:rgb(12, 53, 71) }
+.legend .unvisited { border: 1px solid rgb(175, 216, 248); background-color:white }
+.legend .visited { background-color: #00ffff; } */
+
+.wrapper {
+  justify-content: center;
+}
+
 
 .wall{
     animation-name: wallAnimation;

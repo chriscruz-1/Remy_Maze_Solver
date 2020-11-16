@@ -13,12 +13,25 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </head>
     <body>
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <body>
+
+            <div class=wrapper>
+                <ul class="legend">
+                    <li><span class="start-pt"></span> Starting point</li>
+                    <li><span class="end-pt"></span> End point</li>
+                    <li><span class="wall-lg"></span> Wall</li>
+                    <li><span class="unvisited"></span> Unvisited</li>
+                    <li><span class="visited"></span> Visited</li>
+                </ul>
+            </div>
+
             <h1>This is a path finder game with Machine Learning</h1>
 
             <table id='board'>
@@ -36,9 +49,7 @@
                 {% endfor%}
                 </tbody>
             </table>
-            
-        </body>
-        
+        </body>         
         <script src="{% static 'js/script.js' %}"></script>
     </body>
 </html>
