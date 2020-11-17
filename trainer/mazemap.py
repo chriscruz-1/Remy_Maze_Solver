@@ -5,6 +5,7 @@ class Mode(Enum):
     VALID = 0
     INVALID = 1
     VISITED = 2
+    PREVIOUS = 3
     END = 4
     TERMINATED = 5
 
@@ -32,6 +33,7 @@ class MazeMap:
 
         # Mark the current location of our agent.
         self.curr_loc = start
+        self.prev_loc = None
 
         # Set up state map, which will record the reward
         # And will be used in training process
@@ -108,6 +110,8 @@ class MazeMap:
             next_loc = self._apply_action(action)
             if next_loc == self.end:
                 return (10, Mode.END)
+            elif next_loc == self.prev_loc:
+                return(-5, Mode.PREVIOUS)
             elif next_loc in self.visited:
                 return (-1, Mode.VISITED)
             else:
@@ -159,6 +163,7 @@ class MazeMap:
         self.tol_reward += reward
 
         if mode != Mode.INVALID:
+            self.prev_loc = self.curr_loc
             self.curr_loc = self._apply_action(action)
             self.visited.add(self.curr_loc)
 
