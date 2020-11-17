@@ -38,3 +38,13 @@ def build_model(maze, lr=0.001):
     model.add(Dense(len(Action)))
     model.compile(optimizer='adam', loss='mse')
     return model
+
+def build_model_reduced(maze, lr=0.001):
+    model = Sequential()
+    model.add(Dense(maze.size/4, input_shape=(maze.size,)))
+    model.add(PReLU())
+    model.add(Dense(maze.size/8))
+    model.add(PReLU())
+    model.add(Dense(len(Action)))
+    model.compile(optimizer='adam', loss='mse')
+    return model

@@ -24,7 +24,7 @@ class Action(Enum):
         return self.value
 
 class MazeMap:
-    def __init__(self, map, start=(0, 0), end=None):
+    def __init__(self, map, start=(0, 0), end=None, name=None):
         self.maze = np.array(map)
         self.height, self.width = self.maze.shape
 
@@ -48,6 +48,9 @@ class MazeMap:
         # Set up visited set.
         self.visited = set()
         self.visited.add(self.start)
+
+        # Name for maze, if applicable
+        self.name = name
 
         # Counter to penalize agent if it only stays on visited cells
         self.visit_in_row = 0
