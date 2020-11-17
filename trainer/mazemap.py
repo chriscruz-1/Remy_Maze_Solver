@@ -8,6 +8,7 @@ class Mode(Enum):
     PREVIOUS = 3
     END = 4
     TERMINATED = 5
+    VISITED_PENALTY = 6
 
     def __int__(self):
         return self.value
@@ -47,6 +48,10 @@ class MazeMap:
         # Set up visited set.
         self.visited = set()
         self.visited.add(self.start)
+
+        # Counter to penalize agent if it only stays on visited cells
+        self.visit_in_row = 0
+
 
     def get_state_size(self):
         return len(self.state.flatten())
@@ -110,6 +115,9 @@ class MazeMap:
             next_loc = self._apply_action(action)
             if next_loc == self.end:
                 return (10, Mode.END)
+            elif next_loc in self.visited and self.visit_in_row > 10:
+                # agent stuck looping on visited cells, penalize
+                return (-15, Mode.VISITED_PENALTY)
             elif next_loc == self.prev_loc:
                 return(-5, Mode.PREVIOUS)
             elif next_loc in self.visited:
@@ -167,6 +175,11 @@ class MazeMap:
             self.curr_loc = self._apply_action(action)
             self.visited.add(self.curr_loc)
 
+            if mode == Mode.VISITED or mode == Mode.PREVIOUS or mode == Mode.VISITED_PENALTY:
+                self.visit_in_row += 1
+            else:
+                self.visit_in_row = 0
+
             if mode == Mode.END:
                 return self.observe(), reward, mode
 
@@ -175,7 +188,7 @@ class MazeMap:
 
         return self.observe(), reward, mode
             
-    def print_maze(self,mouse_char='m',end_char='E',wall_char='██',empty_char='  ',edge_char='░'):
+    def print_maze(self,mouse_char='mm',end_char='E',wall_char='██',empty_char='  ',edge_char='░'):
         canvas = self.observe(reshape=False)
         width, height = canvas.shape
         # Print maze top boundary
@@ -186,7 +199,7 @@ class MazeMap:
             for i in range(width):
                 # Print maze contents row by row
                 if canvas[j][i] == .3:
-                    print(mouse_char*2 + '', end = '')
+                    print(mouse_char + '', end = '')
                 elif canvas[j][i] == 1:
                     print(wall_char + '', end = '')
                 elif canvas[j][i] == 0:
@@ -199,3 +212,67 @@ class MazeMap:
             print(edge_char)
         # Print maze bottom boundary
         print(edge_char * (2* len(canvas) + 2))
+
+    def path_to_end(self):
+        # Get observed copy of maze
+        canvas = self.observe(reshape=False)
+        # Initialize arrays for BFS
+        queue = []
+        visited = set()
+        dist = [[np.Inf] * self.width for i in range(self.height)]
+        prev_cell = [[False] * self.width for i in range(self.height)]
+
+        # Add current location initial point
+        row,col = self.curr_loc
+        visited.add(self.curr_loc);
+        dist[col][row] = 0;
+        queue.append(self.curr_loc);
+
+        found = False
+        # Iterate through queue until exit is found
+        while len(queue) > 0:
+            if found:
+                break
+            row,col = queue.pop(0)
+            cell_list = []
+
+            # Add unvisited neighbors to queue
+            if row != self.width - 1:
+                cell_list.append((row + 1, col))
+
+            if row > 0:
+                cell_list.append((row - 1, col))
+
+            if col != self.height - 1:
+                cell_list.append((row, col + 1))
+
+            if col > 0:
+                cell_list.append((row, col - 1))
+
+            for cell in cell_list:
+                if cell not in visited:
+                    if canvas[cell] != 1:
+                        #print("adding cell", cell)
+                        # Add new cell to visited set
+                        visited.add(cell)
+                        #print(col,row)
+                        # Calculate distance from starting point
+                        dist[cell[1]][cell[0]] = dist[col][row] + 1
+                        prev_cell[cell[1]][cell[0]] = (row,col)
+                        queue.append(cell)
+                        #print("value at cell:", canvas[cell])
+                        # If we find the exit, we are done
+                        if canvas[cell] == 0.9:
+                            found = True
+                            #print("found exit at ", cell)
+                            break
+
+        # Retrieve shortest path by going backwards through the previous cell array
+        shortest_path = []
+        distance = dist[cell[1]][cell[0]]
+        cur_cell = cell
+        while cur_cell != self.curr_loc:
+            shortest_path.insert(0, cur_cell)
+            cur_cell = prev_cell[cur_cell[1]][cur_cell[0]]
+
+        return shortest_path, distance
