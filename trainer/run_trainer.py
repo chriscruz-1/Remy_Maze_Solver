@@ -22,10 +22,11 @@ maze_test = np.array([
 def to_float(x):
     return x.astype(float)
 
-df = pd.read_csv('./mazes/m10.csv', header=None)
+df = pd.read_csv('./mazes/m1.csv', header=None)
 df = df.apply(to_float)
 maze_test = df.values
 
+# Enable GPU memory auto resize, in case your get error due to GPU occupied by other applications
 physical_devices = tf.config.list_physical_devices('GPU')
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
@@ -59,7 +60,9 @@ def start_train(model,
         loss = 0.
         is_over = False
 
-        maze_map.reset()
+        if epoch != 0:
+            point = random.choice(maze_map.free)
+            maze_map.reset(point)
 
         curr_state = maze_map.observe()
 
@@ -103,15 +106,8 @@ def start_train(model,
 
         print(f'Epoch {epoch}/{num_epoch} | Loss: {loss:.2f} | Episodes: {num_episode} | Win Count: {np.sum(np.array(history))} | Win Rate: {win_rate}')
 
-        # if win_rate > 0.5:
-        #     epsilon = 0.2
-        # elif win_rate > 0.8:
-        #     epsilon = 0.1
-        # elif win_rate > 0.9:
-        #     epsilon = 0.05
-        new_epsilon = (10 ** (-win_rate)) * 0.8 / ((win_rate + 1) ** 2)
+        new_epsilon = (math.exp(-win_rate)) * 0.9 / ((win_rate + 1) ** 4)
         epsilon = new_epsilon if new_epsilon < epsilon else epsilon
-
         
         if win_rate == 1.0:
             print('Reach 100% win rate')
@@ -134,7 +130,7 @@ def start_train(model,
 
 
 # This hyperparamter is used to control the ratio of exploration and exploitation
-epsilon = 0.8
+epsilon = 0.9
 maze_map = MazeMap(maze_test)
 model = build_model(maze_test)
 start_train(model, maze_map, 1000, 8 * maze_map.get_state_size())

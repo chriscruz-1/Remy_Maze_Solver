@@ -41,8 +41,11 @@ class MazeMap:
 
         # Set up total reward and termination bound
         self.tol_reward = 0
-        self.reward_lower_bound = -100
-        # self.reward_upper_bound = 100
+        self.reward_lower_bound = -10
+        # self.reward_upper_bound = 10
+
+        self.free = [(r,c) for r in range(self.height) for c in range(self.width) if self._is_path(point=(r, c))]
+        self.free.remove(self.end)
 
         # Set up visited set.
         self.visited = set()
@@ -63,8 +66,8 @@ class MazeMap:
 
         # Set up total reward and termination bound
         self.tol_reward = 0
-        self.reward_lower_bound = -100
-        # self.reward_upper_bound = 100
+        self.reward_lower_bound = -10
+        # self.reward_upper_bound = 10
 
         # Set up visited set.
         self.visited = set()
@@ -79,12 +82,12 @@ class MazeMap:
 
     # Determine whether there is a path based on 
     # the difference from current row and col
-    def _is_path(self, drow = 0, dcol = 0):
-        curr_row, curr_col = self.curr_loc
+    def _is_path(self, drow = 0, dcol = 0, point = None):
+        curr_row, curr_col = self.curr_loc if point == None else point
         return (self.maze[curr_row + drow, curr_col + dcol] == 0)
 
-    def _is_wall(self, drow = 0, dcol = 0):
-        return not self._is_path(drow, dcol)
+    def _is_wall(self, drow = 0, dcol = 0, point = None):
+        return not self._is_path(drow, dcol, point)
 
     # Calculate all possible and valid operation based on the current location
     def get_valid_actions(self):
@@ -128,16 +131,16 @@ class MazeMap:
         valid_actions = self.get_valid_actions()
         action = Action(action)
         if not (action in valid_actions):
-            return (-25, Mode.INVALID)
+            return (-3, Mode.INVALID)
         else:
-            eval_reward = self.evaluation()
             next_loc = self._apply_action(action)
+            eval_reward = self.evaluation(next_loc)
             if next_loc == self.end:
-                return (50 + eval_reward, Mode.END)
+                return (10 + eval_reward, Mode.END)
             elif next_loc in self.visited:
-                return (-10, Mode.VISITED)
+                return (-2, Mode.VISITED)
             else:
-                return (-0.5 + eval_reward, Mode.VALID)
+                return (-0.1 + eval_reward, Mode.VALID)
 
     # Get the current map and location of agent
     def observe(self, mark_visited=False, reshape=True):
@@ -181,14 +184,20 @@ class MazeMap:
 
     # Use Manhattan Distance as evalutaion function
     # Manhatten distance here is calculated as variable `distance`
-    def evaluation(self, full_reward=15):
-        curr_row, curr_col = self.curr_loc
+    def evaluation(self, next_loc=None, full_reward=2.5):
+        curr_row, curr_col = self.curr_loc if next_loc == None else next_loc
         end_row, end_col = self.end
 
         distance = abs(end_row - curr_row) + abs(end_col - curr_col)
         ratio = 1 - (distance / (self.width + self.height - 2))
-        final_reward = 1.2 * full_reward if abs(end_row - curr_row) == 1 and abs(end_col - curr_col) == 1 else full_reward * ratio
-        return final_reward
+
+        weight = 2 * (ratio ** 2)
+
+        # Penalize our agent if it's one step from end, but don't go for it.
+        if abs(end_row - self.curr_loc[0]) == 1 and abs(end_col - self.curr_loc[1]) == 1 and next_loc != self.end:
+            return -3
+
+        return full_reward * weight
 
     def act(self, action: Action):
         reward, mode = self.cal_reward(action)
