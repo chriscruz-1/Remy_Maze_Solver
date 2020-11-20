@@ -23,12 +23,36 @@ class Action(Enum):
 
 class MazeMap:
     def __init__(self, map, start=(0, 0), end=None):
+        self._maze = np.array(map)
+
         self.maze = np.array(map)
         self.height, self.width = self.maze.shape
 
         # Mark the start position and end position
         self.start = start
         self.end = (self.height - 1, self.width - 1) if end == None else end
+
+        # Mark the current location of our agent.
+        self.curr_loc = start
+
+        # Set up state map, which will record the reward
+        # And will be used in training process
+        self.state = np.copy(self.maze)
+
+        # Set up total reward and termination bound
+        self.tol_reward = 0
+        self.reward_lower_bound = -100
+        # self.reward_upper_bound = 100
+
+        # Set up visited set.
+        self.visited = set()
+        self.visited.add(self.start)
+
+    def reset(self, start=(0, 0)):
+        self.maze = np.copy(self._maze)
+
+        # Mark the start position and end position
+        self.start = start
 
         # Mark the current location of our agent.
         self.curr_loc = start
@@ -86,11 +110,12 @@ class MazeMap:
     # Returen the new location of our agent.
     def _apply_action(self, action: Action):
         curr_row, curr_col = self.curr_loc
+        action = Action(action)
 
         if action == Action.LEFT:
-            curr_row -= 1
-        elif action == Action.UP:
             curr_col -= 1
+        elif action == Action.UP:
+            curr_row -= 1
         elif action == Action.RIGHT:
             curr_col += 1
         elif action == Action.DOWN:
@@ -101,20 +126,21 @@ class MazeMap:
     # Calculate the reward based on different situations.
     def cal_reward(self, action: Action):
         valid_actions = self.get_valid_actions()
-
-        if not action in valid_actions:
-            return (-10, Mode.INVALID)
+        action = Action(action)
+        if not (action in valid_actions):
+            return (-25, Mode.INVALID)
         else:
+            eval_reward = self.evaluation()
             next_loc = self._apply_action(action)
             if next_loc == self.end:
-                return (10, Mode.END)
+                return (50 + eval_reward, Mode.END)
             elif next_loc in self.visited:
-                return (-1, Mode.VISITED)
+                return (-10, Mode.VISITED)
             else:
-                return (-0.5, Mode.VALID)
+                return (-0.5 + eval_reward, Mode.VALID)
 
     # Get the current map and location of agent
-    def observe(self, mark_visited=False):
+    def observe(self, mark_visited=False, reshape=True):
         curr_row, curr_col = self.curr_loc
         canvas = np.copy(self.maze)
 
@@ -128,7 +154,9 @@ class MazeMap:
 
         # Use 0.9 to mark position of end
         canvas[self.end[0], self.end[1]] = 0.9
-        return canvas.reshape(1, -1)
+        if reshape:
+            return canvas.reshape(1, -1)
+        return canvas
     
     # This function is basically identical to the observe.
     # Only used for visualization game process.
@@ -151,6 +179,17 @@ class MazeMap:
         canvas[self.end[0], self.end[1]] = 0.9
         return canvas
 
+    # Use Manhattan Distance as evalutaion function
+    # Manhatten distance here is calculated as variable `distance`
+    def evaluation(self, full_reward=15):
+        curr_row, curr_col = self.curr_loc
+        end_row, end_col = self.end
+
+        distance = abs(end_row - curr_row) + abs(end_col - curr_col)
+        ratio = 1 - (distance / (self.width + self.height - 2))
+        final_reward = 1.2 * full_reward if abs(end_row - curr_row) == 1 and abs(end_col - curr_col) == 1 else full_reward * ratio
+        return final_reward
+
     def act(self, action: Action):
         reward, mode = self.cal_reward(action)
 
@@ -167,4 +206,29 @@ class MazeMap:
                 mode = Mode.TERMINATED
 
         return self.observe(), reward, mode
+
+    def print_maze(self,mouse_char='mm',end_char='E',wall_char='██',empty_char='  ',edge_char='░'):
+        canvas = self.observe(reshape=False)
+        width, height = canvas.shape
+        # Print maze top boundary
+        print(edge_char * (2* len(canvas) + 2))
+        for j in range(height):
+            # Print maze left boundary
+            print(edge_char, end = '')
+            for i in range(width):
+                # Print maze contents row by row
+                if canvas[j][i] == .3:
+                    print(mouse_char + '', end = '')
+                elif canvas[j][i] == 1:
+                    print(wall_char + '', end = '')
+                elif canvas[j][i] == 0:
+                    print(empty_char + '', end = '')
+                elif canvas[j][i] == .9:
+                    print(end_char*2 + '', end = '')
+                else:
+                    print(str(canvas[i][j])*2 + '', end = '')
+            # Print maze right boundary
+            print(edge_char)
+        # Print maze bottom boundary
+        print(edge_char * (2* len(canvas) + 2))
             
