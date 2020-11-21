@@ -1,4 +1,4 @@
-from utils import build_model
+from utils import build_model, load_csv
 from replay import Episode, ReplyBuffer
 import numpy as np
 from mazemap import Action, MazeMap, Mode
@@ -7,24 +7,39 @@ import tensorflow as tf
 import pandas as pd
 import math
 import random
+import os
 
-maze_test = np.array([
-    [ 0., 1., 0., 0., 0., 0., 0., 0. ],
-    [ 0., 0., 0., 1., 1., 0., 1., 0. ],
-    [ 1., 1., 1., 0., 0., 0., 1., 0. ],
-    [ 0., 0., 0., 0., 1., 1., 0., 0. ],
-    [ 0., 1., 1., 1., 0., 0., 0., 1. ],
-    [ 0., 1., 0., 0., 0., 0., 0., 1. ],
-    [ 0., 0., 0., 1., 0., 0., 0., 1. ],
-    [ 0., 0., 0., 1., 0., 0., 0., 0. ],
-])
+# maze_test = np.array([
+#     [ 0., 1., 0., 0., 0., 0., 0., 0. ],
+#     [ 0., 0., 0., 1., 1., 0., 1., 0. ],
+#     [ 1., 1., 1., 0., 0., 0., 1., 0. ],
+#     [ 0., 0., 0., 0., 1., 1., 0., 0. ],
+#     [ 0., 1., 1., 1., 0., 0., 0., 1. ],
+#     [ 0., 1., 0., 0., 0., 0., 0., 1. ],
+#     [ 0., 0., 0., 1., 0., 0., 0., 1. ],
+#     [ 0., 0., 0., 1., 0., 0., 0., 0. ],
+# ])
 
-def to_float(x):
-    return x.astype(float)
+def load_mazes(directory='./mazes/', num_mazes=10):
+    mazes = []
+    cur_count = 0
+    for filename in os.listdir(directory):
+        if filename.endswith(".csv"):
+            filepath = os.path.join(directory, filename)
+            # print(filepath)
 
-df = pd.read_csv('./mazes/m1.csv', header=None)
-df = df.apply(to_float)
-maze_test = df.values
+            # Read csv into np array, then convert to MazeMap
+            cur_maze = load_csv(filepath)
+            mazes.append(MazeMap(cur_maze, name=filename))
+        cur_count += 1
+
+        if cur_count == num_mazes:
+            break
+    return mazes
+
+# df = pd.read_csv('./mazes/m1.csv', header=None)
+# df = df.apply(to_float)
+# maze_test = df.values
 
 # Enable GPU memory auto resize, in case your get error due to GPU occupied by other applications
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -41,7 +56,7 @@ def start_train(model,
     global epsilon
 
     if save_path == None:
-        save_path = 'maze_model'
+        save_path = 'maze_model.h5'
 
     if load_path != None:
         print(f'Load weight from {load_path}')
@@ -57,6 +72,9 @@ def start_train(model,
 
     # Run training epoch
     for epoch in range(num_epoch):
+        if epoch == 250:
+            epsilon = 0.8
+
         loss = 0.
         is_over = False
 
@@ -92,7 +110,7 @@ def start_train(model,
             else:
                 is_over = False
 
-            maze_map.print_maze(mouse_char=':>')
+            # maze_map.print_maze(mouse_char=':>')
 
             episode = Episode(prev_state, curr_state, action, reward, mode)
             replay_buf.log(episode)
@@ -114,23 +132,27 @@ def start_train(model,
             break
 
         if epoch % 15 == 0:
-            h5file = save_path + ".h5"
+            h5file = save_path
             model.save_weights(h5file, overwrite=True)
             tfjs.converters.save_keras_model(model, './')
             
             print(f'Saved model in {save_path}')
 
 
-    h5file = save_path + ".h5"
+    h5file = save_path
     model.save_weights(h5file, overwrite=True)        
     tfjs.converters.save_keras_model(model, './')
     print(f'Saved model in {save_path}')
 
-
-
-
 # This hyperparamter is used to control the ratio of exploration and exploitation
 epsilon = 0.9
-maze_map = MazeMap(maze_test)
-model = build_model(maze_test)
-start_train(model, maze_map, 1000, 8 * maze_map.get_state_size())
+
+# maze_map = MazeMap(maze_test)
+mazes = load_mazes()
+model = build_model(mazes[0]._maze)
+
+for index, maze_map in enumerate(mazes):
+    if index == 0:
+        print(f"Start map {maze_map.name}")
+        start_train(model, maze_map, 400, 8 * maze_map.get_state_size())
+        print(f"Finished training map {maze_map.name}")

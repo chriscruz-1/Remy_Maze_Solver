@@ -6,6 +6,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense
 # from keras.optimizers import SGD , Adam, RMSprop
 from keras.layers.advanced_activations import PReLU
+import pandas as pd
 
 # This function is used to visualize the game process by using matplot
 # Credits to https://www.samyzaf.com/ML/rl/qmaze.html
@@ -38,3 +39,11 @@ def build_model(maze, lr=0.001):
     model.add(Dense(len(Action)))
     model.compile(optimizer='adam', loss='mse')
     return model
+
+def load_csv(filename):
+    def to_float(x):
+        return x.astype(float)
+
+    df = pd.read_csv(filename, header=None)
+    df = df.apply(to_float)
+    return df.values

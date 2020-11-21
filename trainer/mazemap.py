@@ -22,7 +22,7 @@ class Action(Enum):
         return self.value
 
 class MazeMap:
-    def __init__(self, map, start=(0, 0), end=None):
+    def __init__(self, map, start=(0, 0), end=None, name=None):
         self._maze = np.array(map)
 
         self.maze = np.array(map)
@@ -44,8 +44,12 @@ class MazeMap:
         self.reward_lower_bound = -10
         # self.reward_upper_bound = 10
 
+        # Log all free cells
         self.free = [(r,c) for r in range(self.height) for c in range(self.width) if self._is_path(point=(r, c))]
         self.free.remove(self.end)
+
+        # Name for maze, if applicable
+        self.name = name
 
         # Set up visited set.
         self.visited = set()
