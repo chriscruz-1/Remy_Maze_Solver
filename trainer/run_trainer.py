@@ -8,6 +8,7 @@ import pandas as pd
 import math
 import random
 import os
+import argparse
 
 # maze_test = np.array([
 #     [ 0., 1., 0., 0., 0., 0., 0., 0. ],
@@ -69,18 +70,20 @@ def start_train(model,
     history = []
     loss = 0.0
     hsize = maze.get_state_size() // 2
+    win_rate = 0
 
     # Run training epoch
     for epoch in range(num_epoch):
-        if epoch == 250:
-            epsilon = 0.8
-
         loss = 0.
         is_over = False
 
-        if epoch != 0:
+        if epoch % 2 == 1 and win_rate < 0.8:
+            # Randomly pick a start, can improve the performance sometimes.
+            # No guarantee.
             point = random.choice(maze_map.free)
             maze_map.reset(point)
+        else:
+            maze_map.reset()
 
         curr_state = maze_map.observe()
 
@@ -110,7 +113,7 @@ def start_train(model,
             else:
                 is_over = False
 
-            # maze_map.print_maze(mouse_char=':>')
+            maze_map.print_maze(mouse_char=':>')
 
             episode = Episode(prev_state, curr_state, action, reward, mode)
             replay_buf.log(episode)
@@ -147,12 +150,42 @@ def start_train(model,
 # This hyperparamter is used to control the ratio of exploration and exploitation
 epsilon = 0.9
 
-# maze_map = MazeMap(maze_test)
-mazes = load_mazes()
-model = build_model(mazes[0]._maze)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--wkdir', default='./mazes', type=str,
+                        help='The working directory of your input file. Default value will be provided if None')
+    parser.add_argument('--filename', default='m1.csv', type=str,
+                        help='The filename of your input file.')
+    parser.add_argument('--load_path', default=None, type=str,
+                        help='Provide the path of model file to resume last training.')
+    parser.add_argument('--save_path', default=None, type=str,
+                        help='Provide the path of model file to be saved for future use.')                
+    
+    args = parser.parse_args()
 
-for index, maze_map in enumerate(mazes):
-    if index == 0:
-        print(f"Start map {maze_map.name}")
-        start_train(model, maze_map, 400, 8 * maze_map.get_state_size())
-        print(f"Finished training map {maze_map.name}")
+    wkdir = args.wkdir
+    filename = args.filename
+    file_path = os.path.join(wkdir, filename)
+
+    input_file = load_csv(file_path)
+    maze_map = MazeMap(input_file, name=filename)
+    model = build_model(maze_map._maze)
+    print(f"Start map {maze_map.name}")
+
+
+    # Currently we only train on the one map. 
+    # since multiple map won't be a good choice based on our current implementation
+    start_train(model, maze_map, 10000, 8 * maze_map.get_state_size(), load_path=args.load_path, save_path=args.save_path)
+    print(f"Finished training map {maze_map.name}")
+
+
+# maze_map = MazeMap(maze_test)
+# mazes = load_mazes()
+# model = build_model(mazes[0]._maze)
+
+# for index, maze_map in enumerate(mazes):
+#     if index == 0:
+#         print(f"Start map {maze_map.name}")
+#         maze_map.print_maze(mouse_char=':>')
+#         start_train(model, maze_map, 20000, 8 * maze_map.get_state_size())
+#         print(f"Finished training map {maze_map.name}")
