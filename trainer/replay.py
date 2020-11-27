@@ -4,8 +4,6 @@ import numpy as np
 from numpy import random
 
 # Basic encap for a episode, which stands for a snapshot of a game state
-
-
 class Episode:
     def __init__(self, curr_state, next_state, action, reward, mode):
         self._curr_state = curr_state
