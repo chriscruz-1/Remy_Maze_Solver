@@ -11,9 +11,6 @@ def index(request):
         'map': map
     })
 
-def model(request):
-    return render(request, 'trainer/demos/model.json')
-
 def greet(request, name):
     return HttpResponse(f"Hello, {name}")
 
