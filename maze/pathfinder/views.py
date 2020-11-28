@@ -10,6 +10,9 @@ def index(request):
     return render(request, 'pathfinder/index.html', {
         'map': map
     })
+    
+def info(request):
+	return render(request, 'pathfinder/info.html')
 
 def model(request):
     return render(request, 'trainer/demos/model.json')
