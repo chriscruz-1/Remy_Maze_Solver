@@ -9,6 +9,7 @@ import math
 import random
 import os
 import argparse
+from time import perf_counter
 
 # maze_test = np.array([
 #     [ 0., 1., 0., 0., 0., 0., 0., 0. ],
@@ -70,12 +71,14 @@ def start_train(model,
     history = []
     loss = 0.0
     hsize = maze.get_state_size() // 2
-    win_rate = 0
+    win_rate = 0.0
+    total_time = 0
 
     # Run training epoch
     for epoch in range(num_epoch):
-        loss = 0.
+        loss = 0.0
         is_over = False
+        epoch_start = perf_counter()
 
         if epoch % 2 == 1 and win_rate < 0.8:
             # Randomly pick a start, can improve the performance sometimes.
@@ -113,7 +116,7 @@ def start_train(model,
             else:
                 is_over = False
 
-            maze_map.print_maze(mouse_char=':>')
+            # maze_map.print_maze(mouse_char=':>')
 
             episode = Episode(prev_state, curr_state, action, reward, mode)
             replay_buf.log(episode)
@@ -124,11 +127,13 @@ def start_train(model,
             loss = train_history.history['loss'][-1]
         
         win_rate = np.sum(np.array(history)) / len(history) if len(history) < hsize else np.sum(np.array(history[-hsize:])) / hsize
-
-        print(f'Epoch {epoch}/{num_epoch} | Loss: {loss:.2f} | Episodes: {num_episode} | Win Count: {np.sum(np.array(history))} | Win Rate: {win_rate}')
-
         new_epsilon = (math.exp(-win_rate)) * 0.9 / ((win_rate + 1) ** 4)
         epsilon = new_epsilon if new_epsilon < epsilon else epsilon
+        
+        epoch_end = perf_counter()
+        epoch_time = epoch_end - epoch_start
+        total_time += epoch_time
+        print(f'Epoch {epoch}/{num_epoch} | Loss: {loss:.2f} | Episodes: {num_episode} | Win Count: {np.sum(np.array(history)):.3f} | \nWin Rate: {win_rate} | Epoch Time: {epoch_time:.2f}s | Total Time: {total_time:.2f}s | Epsilon: {epsilon:.2f}')
         
         if win_rate == 1.0:
             print('Reach 100% win rate')

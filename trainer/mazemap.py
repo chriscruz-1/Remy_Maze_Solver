@@ -5,8 +5,10 @@ class Mode(Enum):
     VALID = 0
     INVALID = 1
     VISITED = 2
+    PREVIOUS = 3
     END = 4
     TERMINATED = 5
+    VISITED_PENALTY = 6
 
     def __int__(self):
         return self.value
@@ -37,6 +39,7 @@ class MazeMap:
 
         # Mark the current location of our agent.
         self.curr_loc = start
+        self.prev_loc = None
 
         # Set up state map, which will record the reward
         # And will be used in training process
@@ -58,6 +61,9 @@ class MazeMap:
         self.visited = set()
         self.visited.add(self.start)
 
+        # Counter to penalize agent if it only stays on visited cells
+        self.visit_in_row = 0
+
     def reset(self, start=(0, 0)):
         self.maze = np.copy(self._maze)
 
@@ -66,6 +72,7 @@ class MazeMap:
 
         # Mark the current location of our agent.
         self.curr_loc = start
+        self.prev_loc = None
 
         # Set up state map, which will record the reward
         # And will be used in training process
@@ -79,6 +86,9 @@ class MazeMap:
         # Set up visited set.
         self.visited = set()
         self.visited.add(self.start)
+
+        # Counter to penalize agent if it only stays on visited cells
+        self.visit_in_row = 0
 
     def get_state_size(self):
         return len(self.state.flatten())
@@ -137,13 +147,20 @@ class MazeMap:
     def cal_reward(self, action: Action):
         valid_actions = self.get_valid_actions()
         action = Action(action)
+
         if not (action in valid_actions):
             return (-3, Mode.INVALID)
         else:
             next_loc = self._apply_action(action)
             eval_reward = self.evaluation(next_loc)
+
             if next_loc == self.end:
                 return (10 + eval_reward, Mode.END)
+            elif next_loc in self.visited and self.visit_in_row > 10:
+                # agent stuck looping on visited cells, penalize
+                return (-3, Mode.VISITED_PENALTY)
+            elif next_loc == self.prev_loc:
+                return(-1, Mode.PREVIOUS)
             elif next_loc in self.visited:
                 return (-2, Mode.VISITED)
             else:
@@ -212,8 +229,14 @@ class MazeMap:
         self.tol_reward += reward
 
         if mode != Mode.INVALID:
+            self.prev_loc = self.curr_loc
             self.curr_loc = self._apply_action(action)
             self.visited.add(self.curr_loc)
+
+            if mode == Mode.VISITED or mode == Mode.PREVIOUS or mode == Mode.VISITED_PENALTY:
+                self.visit_in_row += 1
+            else:
+                self.visit_in_row = 0
 
             if mode == Mode.END:
                 return self.observe(), reward, mode
