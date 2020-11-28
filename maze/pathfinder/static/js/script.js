@@ -1,4 +1,6 @@
-let mouse_down = false
+import * as tf from '@tensorflow/tfjs';
+
+let mouse_down = false;
 
 function toggle_grid(target) {
     if (target.className === 'wall') {
@@ -25,4 +27,13 @@ window.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+});
+
+const MODEL_URL = '../../../../trainer/model.json';
+const model = await tf.loadLayersModel(MODEL_URL);
+			
+const prediction = model.predict(maze);
+
+$("#run_algo").click(function() {
+	console.log(prediction);
 });
