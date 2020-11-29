@@ -1,4 +1,4 @@
-
+Maze\ Output/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -114,3 +114,4 @@ media/
 # **/migrations/**
 # !**/migrations
 # !**/migrations/__init__.py
+*.bin

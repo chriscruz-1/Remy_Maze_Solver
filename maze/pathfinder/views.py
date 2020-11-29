@@ -5,11 +5,17 @@ from .models import Map
 
 # Create your views here.
 def index(request):
-    map = Map(4, 3)
-    map.toggle_wall(1, 1)
+    map = Map(20, 20)
+
     return render(request, 'pathfinder/index.html', {
         'map': map
     })
+    
+def info(request):
+	return render(request, 'pathfinder/info.html')
+
+def model(request):
+    return render(request, 'trainer/demos/model.json')
 
 def greet(request, name):
     return HttpResponse(f"Hello, {name}")

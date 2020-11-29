@@ -1,44 +1,31 @@
-{% load static %}
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <body>
-            <h1>This is a path finder game with Machine Learning</h1>
+{% block content %}
+	<div class="wrapper" style="display:flex; justify-content: center;">
+		<ul class="legend">
+			{% load static %}
+		    <li><img src="{% static 'remyBig.png' %}"/></span> Starting point</li>
+		    <li><span class="end-pt"></span> End point</li>
+		    <li><span class="wall-lg"></span> Wall</li>
+		    <li><span class="unvisited"></span> Unvisited</li>
+		    <li><span class="visited"></span> Visited</li>
+		</ul>
+	</div>
 
-            <table id='board'>
-                <tbody>
-                {% for row in map.rows%}
-                    <tr id="row {{ row.row_idx }}">
-                    {% for grid in row.grids %}
-                        {% if grid.is_wall %}
-                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='wall'></td>
-                        {% else %}
-                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'></td>
-                        {% endif %}      
-                    {% endfor %}
-                    </tr>
-                {% endfor%}
-                </tbody>
-            </table>
-            
-        </body>
-        
-        <script src="{% static 'js/script.js' %}"></script>
-    </body>
-</html>
+	<table id='board'>
+		<tbody>
+		{% for row in map.rows%}
+		    <tr id="row {{ row.row_idx }}">
+		    {% for grid in row.grids %}
+		        {% if grid.is_wall %}
+		        <td id="{{ row.row_idx }}-{{ grid.c }}" class='wall'></td>
+		        {% else %}
+		        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'></td>
+		        {% endif %}      
+		    {% endfor %}
+		    </tr>
+		{% endfor%}
+		</tbody>
+	</table>
+	<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}
