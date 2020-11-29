@@ -58,6 +58,20 @@ class Map:
                     print("\u25af", end=' ')
             print('\n')
 
+    def get_state(self):
+        canvas = []
+        for row in self.rows:
+            for col in row.grids:
+                if col.is_start:
+                    canvas.append(0.3)
+                elif col.is_end:
+                    canvas.append(0.9)
+                elif col.is_wall:
+                    canvas.append(1.0)
+                else:
+                    canvas.append(0.0)
+        return [canvas]
+
     def toggle_wall(self, i, j):
         '''
         Toggle the wall on row i column j.

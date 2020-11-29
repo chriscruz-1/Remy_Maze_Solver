@@ -1,7 +1,7 @@
 #board td {
     border: 1px solid rgb(175, 216, 248);
-    width: 25px;
-    height: 25px;
+    width: 35px;
+    height: 35px;
 }
 
 td, th {

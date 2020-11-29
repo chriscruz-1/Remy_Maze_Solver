@@ -10,6 +10,31 @@ function toggle_grid(target) {
     }
 }
 
+function initalize() {
+    load_map()
+    load_model()
+}
+
+function load_map(x) {
+    window.location = "fetch_map?i=" + x
+}
+
+function load_model() {
+    fetch('fetch_model?i=1', {
+        headers:{
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => {
+        return response.json()
+    })
+    .then(data => {
+        console.log(data)
+        //Perform actions with the response data from the view
+    })
+}
+
 window.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll('td').forEach(button => {
         button.onmousedown = (e_down) => {
@@ -28,6 +53,10 @@ window.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+
+
+console.log(state)
 
 // const MODEL_URL = '../../../../trainer/model.json';
 // const model = await tf.loadLayersModel(MODEL_URL);
