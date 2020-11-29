@@ -1,4 +1,4 @@
-import * as tf from '@tensorflow/tfjs';
+// import * as tf from '@tensorflow/tfjs';
 
 let mouse_down = false;
 
@@ -29,11 +29,11 @@ window.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-const MODEL_URL = '../../../../trainer/model.json';
-const model = await tf.loadLayersModel(MODEL_URL);
+// const MODEL_URL = '../../../../trainer/model.json';
+// const model = await tf.loadLayersModel(MODEL_URL);
 			
-const prediction = model.predict(maze);
+// const prediction = model.predict(maze);
 
-$("#run_algo").click(function() {
-	console.log(prediction);
-});
+// $("#run_algo").click(function() {
+// 	console.log(prediction);
+// });
