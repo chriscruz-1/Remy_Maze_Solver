@@ -1,4 +1,6 @@
-let mouse_down = false
+// import * as tf from '@tensorflow/tfjs';
+
+let mouse_down = false;
 
 function toggle_grid(target) {
     if (target.className === 'wall') {
@@ -6,6 +8,31 @@ function toggle_grid(target) {
     } else {
         target.className = 'wall';
     }
+}
+
+function initalize() {
+    load_map()
+    load_model()
+}
+
+function load_map(x) {
+    window.location = "fetch_map?i=" + x
+}
+
+function load_model() {
+    fetch('fetch_model?i=1', {
+        headers:{
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => {
+        return response.json()
+    })
+    .then(data => {
+        console.log(data)
+        //Perform actions with the response data from the view
+    })
 }
 
 window.addEventListener("DOMContentLoaded", function() {
@@ -26,3 +53,16 @@ window.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+
+
+console.log(state)
+
+// const MODEL_URL = '../../../../trainer/model.json';
+// const model = await tf.loadLayersModel(MODEL_URL);
+			
+// const prediction = model.predict(maze);
+
+// $("#run_algo").click(function() {
+// 	console.log(prediction);
+// });
