@@ -20,7 +20,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
 		
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
-		{% comment %} <script src="../../static/js/script.js"></script> {% endcomment %}
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -36,7 +35,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                   <ul class="navbar-nav">
                     <li class="nav-item active">
-                      <a class="nav-link" id="run_algo" href="#">Run algo <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" id="run_algo" onclick="play_game()">Run algo</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="/">Reset board</a>
@@ -60,7 +59,15 @@
                 {% for row in map.rows%}
                     <tr id="row {{ row.row_idx }}">
                     {% for grid in row.grids %}
-                        {% if grid.is_wall %}
+                        {% if grid.is_start %}
+                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'>
+                          <img src="{% static 'remyBig.png' %}">
+                        </td>
+                        {% elif grid.is_end %}
+                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'>
+                          <img src="{% static 'cheese.ico' %}">
+                        </td>
+                        {% elif grid.is_wall %}
                         <td id="{{ row.row_idx }}-{{ grid.c }}" class='wall'></td>
                         {% else %}
                         <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'></td>
@@ -78,7 +85,8 @@
             </div>
             
             <script>
-              let state = {{ state }}
+              let state = {{ state }};
+              let shape = {{ shape }};
             </script>
         </body>         
         <script src="{% static 'js/script.js' %}"></script>

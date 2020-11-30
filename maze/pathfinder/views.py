@@ -47,10 +47,11 @@ def fetch_map(request):
                     continue
                 if rows[r][c] == 1:
                     map.toggle_wall(r, c)
-        
+                    
         return render(request, 'pathfinder/index.html', {
             'map': map,
-            'state': map.get_state()
+            'state': map.get_state(),
+            'shape': list(map.shape()),
         })
     else:
         return HttpResponseBadRequest("Didn't find the map.")
