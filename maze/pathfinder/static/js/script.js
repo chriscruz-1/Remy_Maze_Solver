@@ -1,5 +1,3 @@
-// import * as tf from '@tensorflow/tfjs';
-
 let mouse_down = false;
 
 function toggle_grid(target) {
@@ -10,32 +8,18 @@ function toggle_grid(target) {
     }
 }
 
-function initalize() {
-    load_map()
-    load_model()
-}
-
 function load_map(x) {
-    window.location = "fetch_map?i=" + x
-}
-
-function load_model() {
-    fetch('fetch_model?i=1', {
-        headers:{
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    })
-    .then(response => {
-        return response.json()
-    })
-    .then(data => {
-        console.log(data)
-        //Perform actions with the response data from the view
-    })
+    window.location = "fetch_map?i=" + x;
 }
 
 window.addEventListener("DOMContentLoaded", function() {
+    let params = (new URL(document.location)).searchParams;
+    let map_idx = params.get('i');
+
+    if (map_idx != null) {
+        return;
+    }
+
     document.querySelectorAll('td').forEach(button => {
         button.onmousedown = (e_down) => {
             mouse_down = true;
@@ -54,15 +38,94 @@ window.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+function indexOfMax(arr) {
+    if (arr.length === 0) {
+        return -1;
+    }
 
+    var max = arr[0];
+    var maxIndex = 0;
 
-console.log(state)
+    for (var i = 1; i < arr.length; i++) {
+        if (arr[i] > max) {
+            maxIndex = i;
+            max = arr[i];
+        }
+    }
 
-// const MODEL_URL = '../../../../trainer/model.json';
-// const model = await tf.loadLayersModel(MODEL_URL);
-			
-// const prediction = model.predict(maze);
+    return maxIndex;
+}
 
-// $("#run_algo").click(function() {
-// 	console.log(prediction);
-// });
+function update_view(curr_row, curr_col, new_row, new_col) {
+    document.getElementById(curr_row + "-" + curr_col).innerHTML = "";
+    document.getElementById(curr_row + "-" + curr_col).className = "visited";
+    document.getElementById(new_row + "-" + new_col).innerHTML = '<img src="/static/remyBig.png">';
+}
+
+function get_new_state(curr_state, curr_row, curr_col, new_row, new_col) {
+    let new_state = curr_state.slice();
+    new_state[0][curr_row * shape[1] + curr_col] = 0.0;
+    new_state[0][new_row * shape[1] + new_col] = 0.3;
+    return new_state.slice();
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function play_game() {
+    if (document.getElementById("run_algo").textContent != "Run algo") {
+        console.log("Already running or finished.");
+        return;
+    }
+
+    document.getElementById("run_algo").textContent = "Running";
+
+    let params = (new URL(document.location)).searchParams;
+    let map_idx = params.get('i');
+
+    if (map_idx == null) {
+        return;
+    }
+
+    const model = await tf.loadLayersModel('http://127.0.0.1:8000/static/models/model_m' + map_idx + '.json');
+
+    let curr_row = 0;
+    let curr_col = 0;
+    let game_over = false;
+    let curr_state = state.slice();
+
+    while (!game_over) {
+        await sleep(250);
+        const result = model.predict(tf.tensor(curr_state, [1, shape[0] * shape[1]], 'float32')).dataSync();
+        const argmax = indexOfMax(result);
+        let new_row = curr_row;
+        let new_col = curr_col
+
+        if (argmax == 0) {
+            // GO LEFT
+            new_col -= 1;
+        } else if (argmax == 1) {
+            // GO UP
+            new_row -= 1;
+        } else if (argmax == 2) {
+            // GO RIGHT
+            new_col += 1;
+        } else if (argmax == 3) {
+            // GO DOWN
+            new_row += 1;
+        }
+
+        if (curr_state[0][new_row * shape[1] + new_col] == 0.9) {
+            game_over = true;
+            console.log("Out");
+        }
+        
+        update_view(curr_row, curr_col, new_row, new_col);
+        curr_state = get_new_state(curr_state, curr_row, curr_col, new_row, new_col).slice();
+        curr_row = new_row;
+        curr_col = new_col;
+    }
+
+    document.getElementById("run_algo").textContent = "Finished";
+}
