@@ -4,7 +4,7 @@ import hashlib
 #random.seed(126)
 
 class maze_class:
-	def __init__(self, dim, max_cluster_size):
+	def __init__(self, dim, max_cluster_size, fixed_start=True):
    		self.dimension = dim
    		self.max_cluster_size = max_cluster_size
    		self.points_list = []
@@ -13,23 +13,26 @@ class maze_class:
    		self.empty_points = [] # List containing points in the maze that do not contain walls
    		self.valid = []
    		self.invalid = []
-   		self.init_maze()
+   		self.init_maze(fixed_start)
 
-	def init_maze(self):
+	def init_maze(self, fixed_start):
 		# Initialize point list
 		for i in range(self.dimension):
 			for j in range(self.dimension):
 				self.points_list.append((i,j))
 
-		#print(self.points_list)
-
+		# Remove upper left and lower right from the point list
+		if fixed_start:
+			self.points_list.remove((0,0))
+			self.points_list.remove((self.dimension - 1,self.dimension - 1))
+			self.empty_points.append((0,0))
+			self.empty_points.append((self.dimension - 1,self.dimension - 1))
 
 		# Initialize self.maze
 		
 		# Add self.dimensions to self.maze
 		for i in range(self.dimension):
 			self.maze.append([])
-		#print(self.maze)
 
 		# Assign all initial points to 0
 		for i in range(self.dimension):
@@ -38,7 +41,8 @@ class maze_class:
 
 	def build_maze(self):
 		# Get random points from point list
-		for num in range(self.dimension**2):
+		num_points = len(self.points_list)
+		for num in range(num_points):
 			index = random.randint(0, len(self.points_list) - 1)
 			cur_point = self.points_list.pop(index)
 			# Check if we can place this point as a wall in the maze

@@ -5,14 +5,18 @@ from time import perf_counter
 num = int(input("How many mazes do you want? (might be less due to hash collisions)"))
 dim = int(input("What dimension?"))
 flags = input("Any flags? (y/n)")
-fill_invalid = 0
+fill_invalid = True
 max_cluster_size = 10
 do_print = False
 
 if flags == 'y':
 	do_print = input("Print mazes? (y/n)")
+	if do_print == 'n':
+		do_print = False
 	max_cluster_size = int(input("Max cluster size? (num)"))
 	fill_invalid = input("Fill invalid? (y/n)")
+	if fill_invalid == 'n':
+		do_print = False
 
 print("ok...")
 start = perf_counter()  
