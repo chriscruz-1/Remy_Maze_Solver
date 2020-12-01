@@ -34,12 +34,32 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                   <ul class="navbar-nav">
+                    
+                    <div class="dropdown", class = "hover_img">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Load Map
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" onclick="load_map(1)">Map 1</a>
+                        <a class="dropdown-item" onclick="load_map(2)">Map 2</a>
+                        <a class="dropdown-item" onclick="load_map(3)">Map 3</a>
+                        <a class="dropdown-item" onclick="load_map(4)">Map 4</a>
+                        <a class="dropdown-item" onclick="load_map(5)">Map 5</a>
+                        <a class="dropdown-item" onclick="load_map(6)">Map 6</a>
+                        <a class="dropdown-item" onclick="load_map(7)">Map 7</a>
+                        <a class="dropdown-item" onclick="load_map(8)">Map 8</a>
+                        <a class="dropdown-item" onclick="load_map(9)">Map 9</a>
+                        <a class="dropdown-item" onclick="load_map(10)">Map 10</a>
+                      </div>
+                    </div>
+
                     <li class="nav-item active">
                         <a class="nav-link" id="run_algo" onclick="play_game()">Run algo</a>
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="/">Reset board</a>
                     </li>
+
                   </ul>
                 </div>
               </nav>
@@ -47,7 +67,7 @@
             <div class="wrapper" style="display:flex; justify-content: center;">
                 <ul class="legend">
                     <li><img src="{% static 'remyBig.png' %}"/>Starting point</li>
-					<li><img src = "{% static 'cheese.ico' %}"> End point</li>
+					          <li><img src = "{% static 'cheese.ico' %}"> End point</li>
                     <li><span class="wall-lg"></span> Wall</li>
                     <li><span class="unvisited"></span> Unvisited</li>
                     <li><span class="visited"></span> Visited</li>
@@ -77,12 +97,6 @@
                 {% endfor%}
                 </tbody>
             </table>
-
-            <div>
-              <button onclick="load_map(1)">
-                Click to load m1.csv
-              </button>
-            </div>
             
             <script>
               let state = {{ state }};
