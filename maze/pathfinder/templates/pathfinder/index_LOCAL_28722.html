@@ -1,0 +1,108 @@
+{% load static %}
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="shortcut icon" type="image/gif" href="{% static 'favicon.gif' %}"/>
+        <link rel="cheese icon" type="image/gif" href="{% static 'cheese.ico' %}"/>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+		
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <body>
+
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <a class="navbar-brand" href="#">Maze solving with ML</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="navbar-nav">
+                    
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Load Map
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" onclick="load_map(1)">Map 1</a>
+                        <a class="dropdown-item" onclick="load_map(2)">Map 2</a>
+                        <a class="dropdown-item" onclick="load_map(3)">Map 3</a>
+                        <a class="dropdown-item" onclick="load_map(4)">Map 4</a>
+                        <a class="dropdown-item" onclick="load_map(5)">Map 5</a>
+                        <a class="dropdown-item" onclick="load_map(6)">Map 6</a>
+                        <a class="dropdown-item" onclick="load_map(7)">Map 7</a>
+                        <a class="dropdown-item" onclick="load_map(8)">Map 8</a>
+                        <a class="dropdown-item" onclick="load_map(9)">Map 9</a>
+                        <a class="dropdown-item" onclick="load_map(10)">Map 10</a>
+                      </div>
+                    </div>
+
+                    <li class="nav-item active">
+                        <a class="nav-link" id="run_algo" onclick="play_game()">Run algo</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/">Reset board</a>
+                    </li>
+
+                  </ul>
+                </div>
+              </nav>
+            
+            <div class="wrapper" style="display:flex; justify-content: center;">
+                <ul class="legend">
+                    <li><img src="{% static 'remyBig.png' %}"/>Starting point</li>
+					          <li><img src = "{% static 'cheese.ico' %}"> End point</li>
+                    <li><span class="wall-lg"></span> Wall</li>
+                    <li><span class="unvisited"></span> Unvisited</li>
+                    <li><span class="visited"></span> Visited</li>
+                </ul>
+            </div>
+
+            <table id='board'>
+                <tbody>
+                {% for row in map.rows%}
+                    <tr id="row {{ row.row_idx }}">
+                    {% for grid in row.grids %}
+                        {% if grid.is_start %}
+                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'>
+                          <img src="{% static 'remyBig.png' %}">
+                        </td>
+                        {% elif grid.is_end %}
+                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'>
+                          <img src="{% static 'cheese.ico' %}">
+                        </td>
+                        {% elif grid.is_wall %}
+                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='wall'></td>
+                        {% else %}
+                        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'></td>
+                        {% endif %}      
+                    {% endfor %}
+                    </tr>
+                {% endfor%}
+                </tbody>
+            </table>
+            
+            <script>
+              let state = {{ state }};
+              let shape = {{ shape }};
+            </script>
+        </body>         
+        <script src="{% static 'js/script.js' %}"></script>
+    </body>
+</html>

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% load static %}
+
 {% block content %}
 	<div class="wrapper" style="display:flex; justify-content: center;">
 		<ul class="legend">
-		    <li><img src="{% static 'remyBig.png' %}"/>Starting point</li>
-				      <li><img src = "{% static 'cheese.ico' %}"> End point</li>
+			{% load static %}
+		    <li><img src="{% static 'remyBig.png' %}"/></span> Starting point</li>
+		    <li><span class="end-pt"></span> End point</li>
 		    <li><span class="wall-lg"></span> Wall</li>
 		    <li><span class="unvisited"></span> Unvisited</li>
 		    <li><span class="visited"></span> Visited</li>
@@ -16,15 +17,7 @@
 		{% for row in map.rows%}
 		    <tr id="row {{ row.row_idx }}">
 		    {% for grid in row.grids %}
-		        {% if grid.is_start %}
-		        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'>
-		          <img src="{% static 'remyBig.png' %}">
-		        </td>
-		        {% elif grid.is_end %}
-		        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'>
-		          <img src="{% static 'cheese.ico' %}">
-		        </td>
-		        {% elif grid.is_wall %}
+		        {% if grid.is_wall %}
 		        <td id="{{ row.row_idx }}-{{ grid.c }}" class='wall'></td>
 		        {% else %}
 		        <td id="{{ row.row_idx }}-{{ grid.c }}" class='unvisited'></td>
@@ -34,10 +27,5 @@
 		{% endfor%}
 		</tbody>
 	</table>
-
-	<script>
-	  let state = {{ state }};
-	  let shape = {{ shape }};
-	</script>
-{% endblock %}       
-        
+	<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

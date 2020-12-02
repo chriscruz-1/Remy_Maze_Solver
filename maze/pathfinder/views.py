@@ -15,6 +15,9 @@ def index(request):
         'map': map,
         'state': map.get_state()
     })
+    
+def info(request):
+	return render(request, 'pathfinder/info.html')
 
 def fetch_model(request):
     map_idx = request.GET.get('i')
