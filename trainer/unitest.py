@@ -24,14 +24,14 @@ def test_map_draw(maze):
 
     plt.show()
 
-def play(maze):
+def play(maze, model_path):
     # Enable GPU memory auto resize, in case your get error due to GPU occupied by other applications
     physical_devices = tf.config.list_physical_devices('GPU')
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     try:
         model = build_model(maze)
-        model.load_weights('maze_model.h5')
+        model.load_weights(model_path)
 
         maze_map = MazeMap(maze)
         maze_img = show_map(maze_map)
@@ -73,6 +73,7 @@ if __name__ == '__main__':
                         help='The working directory of your input file. Default value will be provided if None')
     parser.add_argument('--filename', default='m1.csv', type=str,
                         help='The filename of your input file.')
+    parser.add_argument('--model', default="maze_model.h5", type=str)
     
     args = parser.parse_args()
 
@@ -85,7 +86,7 @@ if __name__ == '__main__':
     func_name = args.func_name
 
     if func_name == 'play':
-        play(input_file)
+        play(input_file, args.model)
     elif func_name == 'test_map_draw':
         test_map_draw(input_file)
 

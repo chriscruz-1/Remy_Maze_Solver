@@ -142,14 +142,14 @@ def start_train(model,
         if epoch % 15 == 0:
             h5file = save_path
             model.save_weights(h5file + '.h5', overwrite=True)
-            tfjs.converters.save_keras_model(model, './' + save_path + '.json')
+            tfjs.converters.save_keras_model(model, './' + save_path)
             
             print(f'Saved model in {save_path}')
 
 
     h5file = save_path
     model.save_weights(h5file + '.h5', overwrite=True)        
-    tfjs.converters.save_keras_model(model, './' + save_path + '.json')
+    tfjs.converters.save_keras_model(model, './' + save_path)
     print(f'Saved model in {save_path}')
 
 # This hyperparamter is used to control the ratio of exploration and exploitation
