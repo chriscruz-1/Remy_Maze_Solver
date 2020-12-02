@@ -1,4 +1,5 @@
 from django.db import models
+import time
 
 # Create your models here.
 class Grid:
@@ -76,6 +77,38 @@ class Map:
     def get_end(self):
         return self.end
 
+
+class Timer:
+	def __init__(self):
+		'''
+		The Timer Class can be used to track the time that a maze run takes.
+		
+		curTimes: The current start and stop times of the timer
+		times: An array of all the saved times
+		numTimes: Number of saved times
+		counting: Flag to tell the page whether to display the counting animation
+					or the waiting animation.
+		'''
+		self.curTimes	= [0.0, 0.0]
+		self.times 		= []
+		self.numTimes 	= 0
+		self.counting	= False
+	
+	def saveTime(self):
+		self.times.append(self.curTime[1]-self.curTime[0])
+		self.numTimes += 1
+	
+	def getTime(self, save):
+		assert save <= self.numTimes and save >= 0
+		return self.times[save]
+		
+	def start(self):
+		self.curTime[0] = time.perf_counter()
+		self.counting = True
+		
+	def stop(self):
+		self.curTime[1] = time.perf_counter()
+		self.counting = False
 
 # Test
 # mymap = Map(4, 3)
