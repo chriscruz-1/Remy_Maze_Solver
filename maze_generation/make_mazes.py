@@ -34,14 +34,14 @@ for i in range(num):
 	maze = gen_maze.maze_class(dim = dim, max_cluster_size = max_cluster_size)
 	maze.build_maze()
 
-	# Print maze if applicable
-	if do_print:
-		gen_maze.print_maze(maze.maze,pretty=True)
-
 	# Fill unreachable cells if applicable
 	if fill_invalid:
 		maze.fill_invalid()
 
+	# Print maze if applicable
+	if do_print:
+		gen_maze.print_maze(maze.maze,pretty=True)
+		
 	# Hash maze to ensure it's not a duplicate
 	cur_hash = maze.get_hash()
 	if cur_hash not in maze_hashes:
