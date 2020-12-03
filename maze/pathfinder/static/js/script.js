@@ -88,7 +88,7 @@ async function play_game() {
         return;
     }
 
-    const model = await tf.loadLayersModel('http://127.0.0.1:8000/static/models/model_m' + map_idx + '.json');
+    const model = await tf.loadLayersModel('/static/models/model_m' + map_idx + '/model.json');
 
     let curr_row = 0;
     let curr_col = 0;
@@ -98,6 +98,14 @@ async function play_game() {
     while (!game_over) {
         await sleep(250);
         const result = model.predict(tf.tensor(curr_state, [1, shape[0] * shape[1]], 'float32')).dataSync();
+        
+        // console.log(JSON.stringify(curr_state))
+        // console.log("(" + curr_row + ", " + curr_col + ")  Prob = " + result);
+
+        // if (curr_row == 9 && curr_col == 5) {
+        //     break;
+        // }
+
         const argmax = indexOfMax(result);
         let new_row = curr_row;
         let new_col = curr_col
@@ -114,6 +122,8 @@ async function play_game() {
         } else if (argmax == 3) {
             // GO DOWN
             new_row += 1;
+        } else {
+            console.log("?")
         }
 
         if (curr_state[0][new_row * shape[1] + new_col] == 0.9) {
