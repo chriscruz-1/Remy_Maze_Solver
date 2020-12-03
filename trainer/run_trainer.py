@@ -61,8 +61,8 @@ def start_train(model,
         save_path = 'maze_model.h5'
 
     if load_path != None:
-        print(f'Load weight from {load_path}')
-        model.load_weights(load_path)
+        print(f'Load weight from ./models_h5/{load_path}')
+        model.load_weights('./models_h5/' + load_path)
 
     maze_map = maze
 
@@ -128,28 +128,29 @@ def start_train(model,
         
         win_rate = np.sum(np.array(history)) / len(history) if len(history) < hsize else np.sum(np.array(history[-hsize:])) / hsize
         new_epsilon = (math.exp(-win_rate)) * 0.9 / ((win_rate + 1) ** 4)
-        epsilon = new_epsilon if new_epsilon < epsilon else epsilon
+        epsilon = new_epsilon
+        #  if new_epsilon < epsilon else epsilon
         
         epoch_end = perf_counter()
         epoch_time = epoch_end - epoch_start
         total_time += epoch_time
-        print(f'Epoch {epoch}/{num_epoch} | Loss: {loss:.2f} | Episodes: {num_episode} | Win Count: {np.sum(np.array(history)):.3f} | \nWin Rate: {win_rate} | Epoch Time: {epoch_time:.2f}s | Total Time: {total_time:.2f}s | Epsilon: {epsilon:.2f}')
+        print(f'Epoch {epoch}/{num_epoch} | Loss: {loss:.2f} | Episodes: {num_episode} | Win Count: {np.sum(np.array(history))} | \nWin Rate: {win_rate:.3f} | Epoch Time: {epoch_time:.2f}s | Total Time: {total_time:.2f}s | Epsilon: {epsilon:.2f}')
         
         if win_rate == 1.0:
             print('Reach 100% win rate')
             break
 
         if epoch % 15 == 0:
-            h5file = save_path
+            h5file = "./models_h5/" + save_path
             model.save_weights(h5file + '.h5', overwrite=True)
-            tfjs.converters.save_keras_model(model, './' + save_path)
+            tfjs.converters.save_keras_model(model, './models_json/' + save_path)
             
             print(f'Saved model in {save_path}')
 
 
-    h5file = save_path
+    h5file = "./models_h5/" + save_path
     model.save_weights(h5file + '.h5', overwrite=True)        
-    tfjs.converters.save_keras_model(model, './' + save_path)
+    tfjs.converters.save_keras_model(model, './models_json/' + save_path)
     print(f'Saved model in {save_path}')
 
 # This hyperparamter is used to control the ratio of exploration and exploitation
@@ -164,7 +165,9 @@ if __name__ == '__main__':
     parser.add_argument('--load_path', default=None, type=str,
                         help='Provide the path of model file to resume last training.')
     parser.add_argument('--save_path', default=None, type=str,
-                        help='Provide the path of model file to be saved for future use.')                
+                        help='Provide the path of model file to be saved for future use.')
+    parser.add_argument('--log_time', default=False, type=bool,
+                        help='Whether log the training time of each map.')                
     
     args = parser.parse_args()
 

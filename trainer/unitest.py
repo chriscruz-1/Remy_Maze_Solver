@@ -31,7 +31,7 @@ def play(maze, model_path):
 
     try:
         model = build_model(maze)
-        model.load_weights(model_path)
+        model.load_weights("./models_h5/" + model_path)
 
         maze_map = MazeMap(maze)
         maze_img = show_map(maze_map)
@@ -45,7 +45,13 @@ def play(maze, model_path):
 
             if not valid_actions: break
 
-            possible_move = [ pred if Action(index) in valid_actions else -sys.float_info.max for index, pred in enumerate(model.predict(state)[0]) ]
+            prediction = model.predict(state)[0]
+
+            # print(state)
+
+            # print(f"({maze_map.curr_loc[0]}, {maze_map.curr_loc[1]})   Prob = {prediction}")
+
+            possible_move = [ pred if Action(index) in valid_actions else -sys.float_info.max for index, pred in enumerate(prediction) ]
             # print(possible_move)
             action = np.argmax(possible_move)
             state, reward, mode = maze_map.act(action)

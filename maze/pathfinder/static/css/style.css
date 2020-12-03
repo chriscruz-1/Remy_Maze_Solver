@@ -23,7 +23,15 @@ table {
     border-collapse: collapse;
 }
 
-.legend li { float: left; list-style: none; font-size: 20px;}
+.legend li { 
+  float: left; 
+  list-style: none; 
+  font-size: 20px; 
+  padding: 8px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .legend span { border: 1px solid #ccc; float: left; width: 20px; height: 20px; margin: 2px; }
 /* your colors */
 .legend .start-pt { background-color: rgb(124,252,0); }

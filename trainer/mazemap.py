@@ -34,6 +34,9 @@ class MazeMap:
         self.start = start
         self.end = (self.height - 1, self.width - 1) if end == None else end
 
+        self._maze[self.start[0], self.start[1]] = 0.0
+        self.maze[self.start[0], self.start[1]] = 0.0
+
         self._maze[self.end[0], self.end[1]] = 0.0
         self.maze[self.end[0], self.end[1]] = 0.0
 

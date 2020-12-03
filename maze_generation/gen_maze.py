@@ -117,7 +117,6 @@ class maze_class:
 					continue
 				# Remove found points from point list
 				points.remove(item)
-			print(len(points)) 
 			# Add new graph to graph list
 			connected_graphs.append(connected)
 
@@ -151,11 +150,11 @@ class maze_class:
 		if not self.validated:
 			self.get_valid_empty(self.empty_points)
 
-		print(self.invalid)
+		#print(self.invalid)
 
 		# Fill invalid spaces
 		for point in self.invalid:
-			print(point)
+			#print(point)
 			i = point[0]
 			j = point[1]
 			self.maze[i][j] = 1
