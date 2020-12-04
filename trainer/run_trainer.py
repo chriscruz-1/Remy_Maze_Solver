@@ -10,6 +10,8 @@ import random
 import os
 import argparse
 from time import perf_counter
+import os.path
+from os import path
 
 # maze_test = np.array([
 #     [ 0., 1., 0., 0., 0., 0., 0., 0. ],
@@ -35,7 +37,7 @@ def load_mazes(directory='./mazes/', num_mazes=10):
             mazes.append(MazeMap(cur_maze, name=filename))
         cur_count += 1
 
-        if cur_count == num_mazes:
+        if cur_count >= num_mazes:
             break
     return mazes
 
@@ -54,15 +56,22 @@ def start_train(model,
                 sample_size = 50,
                 gamma = 0.9,
                 load_path = None,
-                save_path = None):
+                save_path = None,
+                map_index = None):
     global epsilon
+    global train_time
+
+    win_rate_log = []
+    epsilon_log = []
+    win_count_log = []
 
     if save_path == None:
         save_path = 'maze_model.h5'
 
     if load_path != None:
-        print(f'Load weight from ./models_h5/{load_path}')
-        model.load_weights('./models_h5/' + load_path)
+        if path.exists('./models_h5/' + load_path):
+            print(f'Load weight from ./models_h5/{load_path}')
+            model.load_weights('./models_h5/' + load_path)
 
     maze_map = maze
 
@@ -129,7 +138,11 @@ def start_train(model,
         win_rate = np.sum(np.array(history)) / len(history) if len(history) < hsize else np.sum(np.array(history[-hsize:])) / hsize
         new_epsilon = (math.exp(-win_rate)) * 0.9 / ((win_rate + 1) ** 4)
         epsilon = new_epsilon
-        #  if new_epsilon < epsilon else epsilon
+        
+        win_rate_log.append(win_rate)
+        epsilon_log.append(epsilon)
+        win_count_log.append(np.sum(np.array(history)))
+        # if new_epsilon < epsilon else epsilon
         
         epoch_end = perf_counter()
         epoch_time = epoch_end - epoch_start
@@ -138,6 +151,13 @@ def start_train(model,
         
         if win_rate == 1.0:
             print('Reach 100% win rate')
+            train_time.append(total_time)
+            logs_path = f"./logs/m{map_index}/"
+            os.makedirs(logs_path, exist_ok=True)
+
+            pd.DataFrame(win_rate_log).to_csv(path.join(logs_path, 'win_rate.csv'), header=None, index=None)
+            pd.DataFrame(epsilon_log).to_csv(path.join(logs_path, 'epsilon.csv'), header=None, index=None)
+            pd.DataFrame(win_count_log).to_csv(path.join(logs_path, 'win_count.csv'), header=None, index=None)
             break
 
         if epoch % 15 == 0:
@@ -155,6 +175,8 @@ def start_train(model,
 
 # This hyperparamter is used to control the ratio of exploration and exploitation
 epsilon = 0.9
+
+train_time = []
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -175,16 +197,32 @@ if __name__ == '__main__':
     filename = args.filename
     file_path = os.path.join(wkdir, filename)
 
-    input_file = load_csv(file_path)
-    maze_map = MazeMap(input_file, name=filename)
-    model = build_model(maze_map._maze)
-    print(f"Start map {maze_map.name}")
+    mazes = load_mazes(num_mazes=50)
+    model = build_model(mazes[0]._maze)
+
+    print(f"Read in {len(mazes)} mazes")
+
+    for index, maze_map in enumerate(mazes):
+        print(f"Start map {maze_map.name}")
+        maze_map.print_maze(mouse_char=':>')
+        start_train(model, maze_map, 10000, 8 * maze_map.get_state_size(), save_path=f"model_m{index}", map_index=index + 1)            
+        print(f"Finished training map {maze_map.name}")
+        pd.DataFrame(train_time).to_csv("train_time.csv", header=None, index=None)
+
+    # pd.DataFrame(np.array(train_time)).to_csv("train_time.csv", header=None, index=None)
+
+    # input_file = load_csv(file_path)
+    # maze_map = MazeMap(input_file, name=filename)
+    # model = build_model(maze_map._maze)
+    # print(f"Start map {maze_map.name}")
 
 
-    # Currently we only train on the one map. 
-    # since multiple map won't be a good choice based on our current implementation
-    start_train(model, maze_map, 10000, 8 * maze_map.get_state_size(), load_path=args.load_path, save_path=args.save_path)
-    print(f"Finished training map {maze_map.name}")
+    # # Currently we only train on the one map. 
+    # # since multiple map won't be a good choice based on our current implementation
+    # start_train(model, maze_map, 10000, 8 * maze_map.get_state_size(), load_path=args.load_path, save_path=args.save_path)
+    # print(f"Finished training map {maze_map.name}")
+
+
 
 
 # maze_map = MazeMap(maze_test)
