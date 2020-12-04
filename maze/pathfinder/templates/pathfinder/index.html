@@ -36,7 +36,7 @@
                   <ul class="navbar-nav">
                     
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <button class="btn btn-secondary dropdown-toggle mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Load Map
                       </button>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -53,9 +53,27 @@
                       </div>
                     </div>
 
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Speed
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item">
+                          <input type = "range"
+                                 min  = "1"
+                                 max = "100"
+                                 value = "50" 
+                                 class = "slider"
+                                 id = "speedBar"
+                                 oninput = "setSpeed()"/>
+                        </a>
+                      </div>
+                    </div>
+
                     <li class="nav-item active">
                         <a class="nav-link" id="run_algo" onclick="play_game()">Run algo</a>
                     </li>
+
                     <li class="nav-item">
                       <a class="nav-link" href="/">Reset board</a>
                     </li>
