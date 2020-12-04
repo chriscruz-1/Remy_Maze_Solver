@@ -73,6 +73,13 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// set speed with sliding bar
+function setSpeed() {
+    var slider = document.getElementById("speedBar");
+    var delay = (100-slider.value)/100 * 500;
+    return delay;
+}
+
 async function play_game() {
     if (document.getElementById("run_algo").textContent != "Run algo") {
         console.log("Already running or finished.");
@@ -96,7 +103,7 @@ async function play_game() {
     let curr_state = state.slice();
 
     while (!game_over) {
-        await sleep(250);
+        await sleep(setSpeed());
         const result = model.predict(tf.tensor(curr_state, [1, shape[0] * shape[1]], 'float32')).dataSync();
         
         // console.log(JSON.stringify(curr_state))

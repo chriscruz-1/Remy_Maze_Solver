@@ -36,7 +36,7 @@
                   <ul class="navbar-nav">
                     
                     <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <button class="btn btn-secondary dropdown-toggle mr-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Load Map
                       </button>
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -50,6 +50,23 @@
                         <a class="dropdown-item" onclick="load_map(8)">Map 8</a>
                         <a class="dropdown-item" onclick="load_map(9)">Map 9</a>
                         <a class="dropdown-item" onclick="load_map(10)">Map 10</a>
+                      </div>
+                    </div>
+
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Speed
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item">
+                          <input type = "range"
+                                 min  = "1"
+                                 max = "100"
+                                 value = "50" 
+                                 class = "slider"
+                                 id = "speedBar"
+                                 oninput = "setSpeed()"/>
+                        </a>
                       </div>
                     </div>
 
